@@ -8,8 +8,13 @@ OUTPUT_FILE = "terraform.tf"
 # Local Ollama server URL
 OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
 
-# Model to test
-# MODEL_NAME = "qwen2.5:latest"   # deepseek-coder-v2:16b, qwen2.5-coder:32b, deepseek-coder, llama3, mistral, etc.
+
+#! Model to test
+#? MODEL_NAME = "qwen2.5:latest"   # deepseek-coder-v2:16b, qwen2.5-coder:32b, deepseek-coder, llama3, mistral
+
+#! Model to test
+#? MODEL_NAME = "qwen2.5:latest"   # deepseek-coder-v2:16b, qwen2.5-coder:32b, deepseek-coder, llama3, mistral, etc.
+# To check which model is available, one can use the following command: ollama list
 MODEL_NAME = "qwen2.5-coder:32b"
 
 
