@@ -1,0 +1,147 @@
+# ============================================================================
+# ARQUIVO DE CONFIGURACAO CENTRAL DO PROJETO
+# ----------------------------------------------------------------------------
+# Este e o unico arquivo que voce precisa editar no dia a dia.
+# Tudo o que o projeto faz (quais modelos rodar, quais datasets usar, onde
+# salvar resultados, quais binarios chamar) esta descrito aqui.
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# 1) OLLAMA: como o projeto conversa com os modelos que rodam na sua maquina
+# ----------------------------------------------------------------------------
+ollama:
+  url: "http://127.0.0.1:11434/api/generate"
+  # Parametros de geracao. Mantenha fixos para que o experimento seja
+  # reproduzivel (mesma entrada gera a mesma saida).
+  temperature: 0.2
+  top_p: 0.9
+  top_k: 40
+  seed: 42
+  num_predict: 2048
+  # Tempo maximo de espera por uma resposta do modelo, em segundos.
+  request_timeout_seconds: 900
+
+# ----------------------------------------------------------------------------
+# 2) MODELOS AVALIADOS (somente open source, via Ollama)
+# ----------------------------------------------------------------------------
+# "name"  = nome exato do modelo no Ollama (o que aparece em `ollama list`)
+# "label" = nome bonito que aparece na Tabela 2
+# "params"= tamanho do modelo, usado na coluna "#Params." da tabela
+models:
+  - name: "qwen2.5-coder:32b"
+    label: "Qwen2.5-Coder-32B"
+    params: "32B"
+  - name: "deepseek-coder-v2:16b"
+    label: "DeepSeek-Coder-V2-16B"
+    params: "16B"
+  - name: "qwen2.5-coder:7b"
+    label: "Qwen2.5-Coder-7B"
+    params: "7B"
+  - name: "qwen2.5:latest"
+    label: "Qwen2.5-7B-Instruct"
+    params: "7B"
+  - name: "mistral"
+    label: "Mistral-7B-Instruct"
+    params: "7B"
+  - name: "deepseek-coder"
+    label: "DeepSeek-Coder-6.7B"
+    params: "6.7B"
+  - name: "llama3.2"
+    label: "Llama-3.2-3B-Instruct"
+    params: "3B"
+  - name: "qwen2.5:0.5b"
+    label: "Qwen2.5-0.5B"
+    params: "0.5B"
+
+# ----------------------------------------------------------------------------
+# 3) DATASETS DE AVALIACAO
+# ----------------------------------------------------------------------------
+# A Tabela 2 do paper tem dois blocos de colunas: IaC-Eval e TF-Gen (Test).
+# Cada dataset aponta para um arquivo .jsonl com as instancias.
+datasets:
+  iac_eval:
+    label: "IaC-Eval"
+    instances: "data/benchmark/iac_eval/instances.jsonl"
+    policies_dir: "data/benchmark/iac_eval/policies"
+  tf_gen_test:
+    label: "TF-Gen (Test)"
+    instances: "data/benchmark/tf_gen_test/instances.jsonl"
+    policies_dir: "data/benchmark/tf_gen_test/policies"
+
+# ----------------------------------------------------------------------------
+# 4) PROMPT E EXEMPLOS FEW-SHOT
+# ----------------------------------------------------------------------------
+prompting:
+  template_file: "config/prompt.txt"
+  few_shot_file: "data/few_shot/examples.json"
+  # O paper usa 3 exemplos em contexto (few-shot) para todos os modelos.
+  num_few_shot_examples: 3
+
+# ----------------------------------------------------------------------------
+# 5) ORACULOS DE VERIFICACAO FORMAL E FERRAMENTAS EXTERNAS
+# ----------------------------------------------------------------------------
+tools:
+  terraform_binary: "terraform"
+  opa_binary: "opa"
+  tflint_binary: "tflint"
+  checkov_binary: "checkov"
+  # Tempos limite em segundos. O paper usa 30s para o terraform plan.
+  init_timeout_seconds: 600
+  validate_timeout_seconds: 120
+  plan_timeout_seconds: 30
+  opa_timeout_seconds: 60
+  tflint_timeout_seconds: 120
+  checkov_timeout_seconds: 300
+
+# ----------------------------------------------------------------------------
+# 6) AMBIENTE AWS FALSO
+# ----------------------------------------------------------------------------
+# O paper faz verificacao PRE-DEPLOY: nada e provisionado de verdade na nuvem.
+# Para o `terraform plan` funcionar sem conta AWS real, usamos credenciais
+# falsas e um arquivo de override do provider.
+aws:
+  use_fake_credentials: true
+  region: "us-east-1"
+  access_key_id: "mock_access_key"
+  secret_access_key: "mock_secret_key"
+  inject_provider_override: true
+  provider_override_file: "config/provider_override.tf"
+
+# ----------------------------------------------------------------------------
+# 7) ONDE OS RESULTADOS SAO GRAVADOS
+# ----------------------------------------------------------------------------
+paths:
+  generations: "results/generations"
+  evaluations: "results/evaluations"
+  tables: "results/tables"
+  terraform_plugin_cache: ".terraform-plugin-cache"
+
+# ----------------------------------------------------------------------------
+# 8) TABELA 2
+# ----------------------------------------------------------------------------
+table2:
+  # Ordem das colunas dentro de cada dataset, igual ao paper.
+  metrics:
+    - correctness
+    - deployability
+    - compilability
+    - linter_pass_rate
+    - security_compliance
+  # Ordem dos datasets (blocos de colunas).
+  dataset_order:
+    - iac_eval
+    - tf_gen_test
+  # Denominadores das metricas auxiliares.
+  #   linter:   "parsable"   conta apenas instancias que passaram em FV-i
+  #             "all"        conta todas as instancias do dataset
+  #   security: "applicable" conta apenas instancias em que o Checkov achou
+  #                          pelo menos uma checagem aplicavel
+  #             "all"        conta todas, tratando as sem checagem como 0
+  denominators:
+    linter: "parsable"
+    security: "applicable"
+
+  # Opcional: se um dia voce fizer fine-tuning, mapeie o modelo ajustado para
+  # o seu modelo base aqui, e a tabela mostrara o ganho entre parenteses.
+  # Exemplo: { "TerraFormer* (SFT)": "Qwen2.5-Coder-3B" }
+  baseline_for_improvement: {}

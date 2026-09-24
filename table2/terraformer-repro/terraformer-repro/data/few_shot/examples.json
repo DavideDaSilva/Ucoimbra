@@ -1,0 +1,14 @@
+[
+  {
+    "prompt": "Create an S3 bucket named 'demo-logs-bucket' with versioning enabled and server side encryption using AES256.",
+    "config": "terraform {\n  required_version = \"~> 1.12.0\"\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 5.0\"\n    }\n  }\n}\n\nprovider \"aws\" {\n  region = \"us-east-1\"\n}\n\nresource \"aws_s3_bucket\" \"demo_logs\" {\n  bucket = \"demo-logs-bucket\"\n}\n\nresource \"aws_s3_bucket_versioning\" \"demo_logs\" {\n  bucket = aws_s3_bucket.demo_logs.id\n  versioning_configuration {\n    status = \"Enabled\"\n  }\n}\n\nresource \"aws_s3_bucket_server_side_encryption_configuration\" \"demo_logs\" {\n  bucket = aws_s3_bucket.demo_logs.id\n  rule {\n    apply_server_side_encryption_by_default {\n      sse_algorithm = \"AES256\"\n    }\n  }\n}\n"
+  },
+  {
+    "prompt": "Set up a VPC with CIDR 10.0.0.0/16 and one public subnet 10.0.1.0/24 in us-east-1a, with DNS hostnames enabled.",
+    "config": "terraform {\n  required_version = \"~> 1.12.0\"\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 5.0\"\n    }\n  }\n}\n\nprovider \"aws\" {\n  region = \"us-east-1\"\n}\n\nresource \"aws_vpc\" \"main\" {\n  cidr_block           = \"10.0.0.0/16\"\n  enable_dns_hostnames = true\n  enable_dns_support   = true\n\n  tags = {\n    Name = \"main-vpc\"\n  }\n}\n\nresource \"aws_subnet\" \"public\" {\n  vpc_id                  = aws_vpc.main.id\n  cidr_block              = \"10.0.1.0/24\"\n  availability_zone       = \"us-east-1a\"\n  map_public_ip_on_launch = true\n\n  tags = {\n    Name = \"public-subnet\"\n  }\n}\n"
+  },
+  {
+    "prompt": "Deploy a Docker container running the nginx:latest image, mapping internal port 80 to external port 8080, with restart always.",
+    "config": "terraform {\n  required_version = \"~> 1.12.0\"\n  required_providers {\n    docker = {\n      source  = \"kreuzwerker/docker\"\n      version = \"~> 3.0\"\n    }\n  }\n}\n\nprovider \"docker\" {}\n\nresource \"docker_image\" \"nginx\" {\n  name         = \"nginx:latest\"\n  keep_locally = true\n}\n\nresource \"docker_container\" \"nginx\" {\n  name    = \"nginx-container\"\n  image   = docker_image.nginx.image_id\n  restart = \"always\"\n\n  ports {\n    internal = 80\n    external = 8080\n  }\n}\n"
+  }
+]

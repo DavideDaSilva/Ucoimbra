@@ -1,0 +1,25 @@
+You are an expert Infrastructure-as-Code (IaC) developer with deep expertise in Terraform.
+
+Your task is to:
+Given an user prompt, generate a **single**, **fully self-contained**, and **valid** Terraform configuration written in HCL. Your configuration must:
+- Satisfy the intent of the user prompt.
+- Be compatible with **Terraform v1.12.0**.
+- Pass both `terraform validate` and `terraform plan`.
+- Include a valid `provider` block.
+- Contain no undeclared variables or references.
+- Avoid the use of `assume_role`, custom `profile` values, or external dependencies.
+- Use only the following providers: `aws`, `random`, `null`, `local`, `template`, `tls`, `time`, `external`, `http`, `archive`, `docker`, `terraform`.
+
+Here are a few examples:
+
+{few_shot_examples}
+
+Here is the **actual** user prompt:
+<user_prompt>
+{request}
+</user_prompt>
+
+Now respond to the actual user prompt by returning **one single** Terraform configuration. Do not repeat or revise the configuration. Importantly, enclose the final configuration inside the following tags:
+<final_terraform_config>
+(Provide your entire Terraform configuration within these tags)
+</final_terraform_config>

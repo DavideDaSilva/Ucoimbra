@@ -1,0 +1,16 @@
+# Resultados de execucao
+results/
+results_autoteste/
+
+# Cache de providers do Terraform
+.terraform-plugin-cache/
+.terraform-plugin-cache-autoteste/
+.terraform/
+*.tfstate
+*.tfstate.backup
+plan.bin
+
+# Python
+__pycache__/
+*.pyc
+.venv/

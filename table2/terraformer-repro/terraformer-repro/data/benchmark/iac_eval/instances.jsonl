@@ -1,0 +1,3 @@
+{"id": "iaceval_001", "prompt": "Create an AWS Lambda function named 'image-resizer' using the python3.12 runtime with handler 'index.handler', packaged from a local zip file, with an IAM execution role.", "policy": "policies/iaceval_001.rego"}
+{"id": "iaceval_002", "prompt": "Provision a security group named 'web-sg' inside a VPC that allows inbound HTTPS traffic on port 443 from anywhere and allows all outbound traffic.", "policy": "policies/iaceval_002.rego"}
+{"id": "iaceval_003", "prompt": "Create a CloudWatch log group named '/aws/app/prod' with a retention period of 30 days and an SNS topic named 'alerts-topic'.", "policy": "policies/iaceval_003.rego"}

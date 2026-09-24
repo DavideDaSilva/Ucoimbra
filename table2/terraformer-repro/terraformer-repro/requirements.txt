@@ -1,0 +1,6 @@
+# Dependencias Python do projeto (poucas de proposito).
+requests>=2.31.0
+PyYAML>=6.0.1
+
+# Opcional: usado apenas pelo script de importacao do dataset IaC-Eval.
+# datasets>=2.19.0
