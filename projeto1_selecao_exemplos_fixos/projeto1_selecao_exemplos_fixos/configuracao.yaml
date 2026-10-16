@@ -1,0 +1,99 @@
+# =====================================================================
+# PROJETO 1: configuracao da selecao dos 3 exemplos fixos
+# =====================================================================
+# Linhas que comecam com "#" sao comentarios (explicacoes) e sao ignoradas.
+# Altere apenas o valor depois dos dois pontos.
+
+# ---------------------------------------------------------------------
+# 1. De onde ler o dataset IaC-Eval
+# ---------------------------------------------------------------------
+dataset:
+  # "huggingface"  -> baixa automaticamente (precisa de internet e: pip install datasets)
+  # ou o caminho de um arquivo .csv, .ods ou .xlsx. Exemplo:
+  #   origem: "dados/iac-eval.ods"
+  origem: "dados/iac_eval.csv"
+  # Nome da aba (so para .ods/.xlsx). Se nao existir, procura a aba com as colunas certas.
+  aba_planilha: "dataset"
+
+# ---------------------------------------------------------------------
+# 2. Como escolher os exemplos
+# ---------------------------------------------------------------------
+selecao:
+  # "uma_por_dificuldade": 1 exemplo para cada dificuldade abaixo (padrao, igual aos slides)
+  # "sequencial":          os primeiros N exemplos aprovados, de qualquer dificuldade
+  estrategia: "uma_por_dificuldade"
+  dificuldades_desejadas: [1, 2, 3]
+  # Usado somente na estrategia "sequencial":
+  quantidade_de_exemplos: 3
+  # Linha do dataset onde a busca comeca (0 = primeira linha).
+  linha_inicial: 0
+  # O Intent e usado no Setting B do Projeto 2. Se true, linhas sem Intent sao puladas.
+  exigir_intent_preenchido: true
+  # Se true, nao escolhe um cenario que use um tipo de recurso (coluna Resource)
+  # ja presente em outro exemplo escolhido. Deixa os 3 exemplos mais variados.
+  evitar_recursos_repetidos: true
+
+  # O que o Reference output precisa cumprir para ser aprovado como exemplo fixo.
+  criterios:
+    compilability: true      # terraform validate tem que passar
+    deployability: true      # terraform plan tem que passar
+    correctness: true        # opa eval (Rego intent) tem que dar true
+    linter: true             # TFLint nao pode reportar problema (ver gravidades abaixo)
+    # Nota minima do Checkov, de 0.0 a 1.0 (1.0 = todas as regras de seguranca aprovadas).
+    security_minima: 1.0
+
+pasta_resultados: "resultados"
+
+# ---------------------------------------------------------------------
+# 3. Verificadores (mesmos valores devem ser usados no Projeto 2)
+# ---------------------------------------------------------------------
+verificadores:
+  # Nome do programa (se estiver no PATH) ou caminho completo.
+  # No Windows, por exemplo:  terraform: "C:/ferramentas/terraform.exe"
+  programas:
+    terraform: "terraform"
+    opa: "opa"
+    tflint: "tflint"
+    checkov: "checkov"
+
+  tempos_limite_segundos:
+    terraform_init: 300
+    terraform_validate: 60
+    terraform_plan: 120
+    terraform_show: 60
+    opa_eval: 60
+    tflint: 120
+    checkov: 300
+
+  # Deployability (terraform plan) SEM conta AWS e sem custo.
+  deployability:
+    # "moto"         -> credenciais falsas + simulador local gratuito da AWS (recomendado)
+    # "sem_servidor" -> apenas credenciais falsas (blocos data "aws_..." vao falhar)
+    modo: "moto"
+    regiao_padrao: "us-east-1"
+    endereco_moto: "http://127.0.0.1:5555"
+    iniciar_moto_automaticamente: true
+    comando_moto: "moto_server"
+    max_tentativas_aws: 1
+    # Serie do provider AWS usada quando o codigo nao declara required_providers.
+    # Deixe vazio ("") para nao fixar.
+    versao_provider_aws: "~> 5.0"
+
+  # 205 dos 458 Reference outputs tem required_version = "~> 1.9.8" (so aceita Terraform 1.9.x)
+  # e profile = "admin-1" (perfil AWS do computador dos autores do IaC-Eval).
+  # true: troca a exigencia por ">= 1.0.0" e anula o profile (via arquivo override).
+  # false (padrao): mantem o codigo como esta; esses codigos falham (o template proibe profile
+  #                 e pede compatibilidade com Terraform 1.12.0).
+  neutralizar_required_version_e_profile: false
+
+  opa:
+    # true: alem de nenhuma regra dar false, exige pelo menos uma regra true.
+    exigir_pelo_menos_um_true: true
+
+  tflint:
+    # Gravidades que reprovam o codigo. Padrao: somente "error".
+    # Mais rigoroso: ["error", "warning", "info"]. Veja docs/03_os_5_verificadores.md
+    gravidades_que_reprovam: ["error"]
+
+  # Onde guardar os plugins baixados (Terraform e TFLint), para nao baixar toda vez.
+  pasta_cache: "ferramentas/cache"
