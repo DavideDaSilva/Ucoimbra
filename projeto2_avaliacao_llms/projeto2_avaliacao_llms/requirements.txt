@@ -1,0 +1,8 @@
+# Pacotes Python necessarios (instale com:  pip install -r requirements.txt)
+PyYAML>=6.0           # le o arquivo configuracao.yaml
+pandas>=1.5           # le o dataset em .csv / .xlsx
+openpyxl>=3.1         # le arquivos .xlsx
+checkov>=3.2          # verificador de seguranca (Security Compliance)
+moto[server]>=5.0     # simulador gratuito da AWS (Deployability sem conta AWS)
+datasets>=2.14        # baixa o IaC-Eval do Hugging Face (so se origem = "huggingface")
+requests>=2.28        # conversa com o Ollama (API local)

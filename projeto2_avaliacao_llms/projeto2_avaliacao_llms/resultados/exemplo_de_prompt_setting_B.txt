@@ -1,0 +1,100 @@
+You are an expert Infrastructure-as-Code (IaC) developer with deep expertise in Terraform.
+
+Your task is to:
+Given an user prompt, generate a **single**, **fully self-contained**, and **valid** Terraform configuration written in HCL. Your configuration must:
+- Satisfy the intent of the user prompt.
+- Be compatible with **Terraform v1.12.0**.
+- Pass both `terraform validate` and `terraform plan`.
+- Include a valid `provider` block.
+- Contain no undeclared variables or references.
+- Avoid the use of `assume_role`, custom `profile` values, or external dependencies.
+- Use only the following providers: `aws`, `random`, `null`, `local`, `template`, `tls`, `time`, `external`, `http`, `archive`, `docker`, `terraform`.
+
+Here are a few examples:
+
+### Example-1
+Prompt: generate Basic Amazon Lightsail
+User intent: have one "aws_lightsail_instance" resource with "name" argument with "availability_zone" argument with "blueprint_id" argument with "bundle_id" argument
+Configuration:
+```hcl
+provider "aws" {
+  region     = "us-east-1"
+}
+
+resource "aws_lightsail_instance" "custom" {
+  name              = "custom"
+  availability_zone = "us-east-1a"
+  blueprint_id      = "amazon_linux_2"
+  bundle_id         = "nano_2_0"
+}
+```
+
+### Example-2
+Prompt: Create a template of an elastic beanstalk application
+User intent: Has one "aws_elastic_beanstalk_application" resource with "name" Has one "aws_elastic_beanstalk_configuration_template" resource with "name" with "application" referencing the "aws_elastic_beanstalk_application" resource with "solution_stack_name"
+Configuration:
+```hcl
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_elastic_beanstalk_application" "tftest" {
+  name        = "tf-test-name"
+  description = "tf-test-desc"
+}
+
+resource "aws_elastic_beanstalk_configuration_template" "tf_template" {
+  name                = "tf-test-template-config"
+  application         = aws_elastic_beanstalk_application.tftest.name
+  solution_stack_name = "64bit Amazon Linux 2023 v4.0.9 running Python 3.11"
+}
+```
+
+### Example-3
+Prompt: Generate a basic Amazon Kinesis V2 Analytics Application to manage an Apache Flink Application
+User intent: Has one "aws_iam_role" resource, and one "aws_kinesisanalyticsv2_application" with argument runtime_environment != "SQL-1_0"
+Configuration:
+```hcl
+provider "aws" {
+  region = "us-west-2"
+}
+
+data "aws_iam_policy_document" "KinesisAssume" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["kinesisanalytics.amazonaws.com"]
+    }
+  }
+}
+
+
+resource "aws_iam_role" "kinesis_role" {
+  name               = "kinesis_role"
+  assume_role_policy = data.aws_iam_policy_document.KinesisAssume.json
+}
+
+resource "aws_kinesisanalyticsv2_application" "flink_app" {
+  name                 = "example-application1"
+  runtime_environment  = "FLINK-1_13"
+  service_execution_role = aws_iam_role.kinesis_role.arn
+}
+```
+
+Here is the **actual** user prompt:
+<user_prompt>
+Generate a basic Amazon Kinesis Analytics Application
+</user_prompt>
+
+Here is the user intent, which lists the resources and attributes that the configuration is expected to contain:
+<user_intent>
+Has one "aws_kinesis_analytics_application" resource
+</user_intent>
+
+Now respond to the actual user prompt by returning **one single** Terraform configuration. Do not repeat or revise the configuration. Importantly, enclose the final configuration inside the following tags:
+
+<final_terraform_config>
+(Provide your entire Terraform configuration within these tags)
+</final_terraform_config>

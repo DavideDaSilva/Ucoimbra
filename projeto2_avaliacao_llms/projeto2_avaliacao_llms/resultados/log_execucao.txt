@@ -1,0 +1,11 @@
+[2026-10-20 22:31:14] Exemplos fixos (linhas do dataset): [24, 49, 146]
+[2026-10-20 22:31:14] Cenarios selecionados: 30 ({"origem_do_dataset": "dados/iac_eval.csv", "total_no_dataset": 458, "linhas_dos_exemplos_fixos (removidas)": [24, 49, 146], "estrategia": "aleatoria", "quantidade_por_dificuldade": 5, "semente": 42, "total_selecionado": 30})
+[2026-10-20 22:31:14]    dificuldade 1: linhas [1, 7, 15, 17, 41]
+[2026-10-20 22:31:14]    dificuldade 2: linhas [59, 63, 74, 115, 132]
+[2026-10-20 22:31:14]    dificuldade 3: linhas [143, 144, 152, 195, 216]
+[2026-10-20 22:31:14]    dificuldade 4: linhas [258, 266, 267, 285, 291]
+[2026-10-20 22:31:14]    dificuldade 5: linhas [314, 336, 364, 380, 382]
+[2026-10-20 22:31:14]    dificuldade 6: linhas [383, 403, 411, 418, 440]
+[2026-10-20 22:31:14] Exemplo de prompt (setting A) salvo em /mnt/c/Users/Davide/Documents/phd/ProjetoTese/IaC-LLMs/Ucoimbra/projeto2_avaliacao_llms/projeto2_avaliacao_llms/resultados/exemplo_de_prompt_setting_A.txt
+[2026-10-20 22:31:14] Exemplo de prompt (setting B) salvo em /mnt/c/Users/Davide/Documents/phd/ProjetoTese/IaC-LLMs/Ucoimbra/projeto2_avaliacao_llms/projeto2_avaliacao_llms/resultados/exemplo_de_prompt_setting_B.txt
+[2026-10-20 22:31:14] Total de geracoes previstas: 30 cenarios x 8 modelos x 2 setting(s) = 480

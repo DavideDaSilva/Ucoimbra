@@ -1,0 +1,236 @@
+linha,linha_na_planilha,Difficulty,Resource,Prompt,Intent
+1,3,1,aws_kinesis_analytics_application,Generate a basic Amazon Kinesis Analytics Application,"Has one ""aws_kinesis_analytics_application"" resource"
+7,9,1,aws_redshift_cluster,Create a RedShift cluster resource with a single node,"Has an aws_redshift_cluster resource and check cluster_type is ""single_node"" or number of nodes is 1"
+15,17,1,aws_elasticache_user,authenticate a elasticache user with redis,"requires access string, engine = REDIS, user id and user name"
+17,19,1,aws_dynamodb_contributor_insights,"Enable contributor insights on a table named ""ExampleTableName""",Create a DynamoDB table and enable contributor insights
+41,43,1,aws_db_instance,"create an aws database that Managed Master Passwords via Secrets Manager, default KMS Key","Has one ""aws_db_instance"" resource
+    with one ""allocated_storage""
+    with one ""engine"" and a valid engine value
+    with one ""instance_class"" and a valid instance class type
+    with one ""username""
+    with one manage_master_user_password"
+59,61,2,"aws_s3_bucket, aws_s3_bucket_object_lock_configuration",Create an AWS S3 bucket named 'example-bucket' with object lock enabled. Configure object lock compliance mode with a retention period of 30 days for objects in the bucket.,"has one aws_s3_bucket resource
+with bucket
+
+has one aws_s3_bucket_object_lock_configuration resource
+with bucket
+with rule
+     with default_retention
+          with mode (GOVERNANCE or COMPLIANCE)
+          with days or years"
+63,65,2,"aws_s3_bucket, aws_s3_bucket_acl, aws_s3_bucket_ownership_controls","Generate a Terraform configuration for managing AWS S3 resources. Start by creating an S3 bucket with a specific name. Follow this with a configuration block for S3 bucket ownership controls, referencing the bucket's ID and setting the object ownership policy to a predefined setting. Then, define an S3 bucket ACL resource that depends on the successful application of the ownership controls. This ACL should set the bucket access to private and also reference the bucket's ID. Ensure each resource block is defined clearly and connected appropriately through references.","Resource ""aws_s3_bucket""
+has one ""bucket""
+
+Resource ""aws_s3_bucket_ownership_controls""
+has one ""bucket""
+within ""rule"", it specifies:
+""object_ownership""
+
+Resource ""aws_s3_bucket_acl""
+has a dependency on ""aws_s3_bucket_ownership_controls.example""
+has one ""bucket""
+has one ""acl"""
+74,76,2,"aws_cloudwatch_composite_alarm, aws_cloudwatch_metric_alarm",Create a CloudWatch Composite Alarm resource.,Creates an aws_cloudwatch_composite_alarm which requires at least one other aws_cloudwatch_metric_alarm
+115,117,2,"aws_s3_bucket, aws_s3_bucket_request_payment_configuration",Create a S3 bucket and an example payment configuration resource for the S3 bucket.,"Has an aws_s3_bucket
+
+Has an aws_s3_bucket_request_payment_configuration
+with bucket = bucket id OR name"
+132,134,2,aws_db_instance,Create an AWS mySQL instance. Any changes on it will be applied immediately,"Has one ""aws_db_instance"" resource
+with one ""allocated_storage""
+with one ""engine"" with value ""mysql""
+with one ""instance_class"" 
+with one ""password""
+with one ""username""
+with one ""apply_immediately"" set to true"
+143,145,3,"aws_elastic_beanstalk_application, aws_iam_role",Create an Elastic Beanstalk application with an app version lifecycle. Retain the version for 5 days,"Has one ""aws_elastic_beanstalk_application"" resource
+    with ""name""
+    with ""appversion_lifecycle"" block
+
+Has one ""aws_iam_role"" resource
+    with ""name""
+    with ""assume_role_policy"" and ""Service"" set to ""elasticbeanstalk.amazonaws.com"""
+144,146,3,"aws_iam_role, aws_lexv2models_bot",create a aws_lexv2models_bot,"Has one resource ""aws_iam_role"" and one resource ""aws_lexv2models_bot"""
+152,154,3,"aws_cloudwatch_metric_alarm, aws_route53_health_check","Configure a health check with route 53 that uses a cloudwatch metric alarm called ""foobar"". Set the metric_name to ""CPUUtilization"", namespace to ""AWS/EC2"", statistic to ""Average"", period to ""120"", and comparison_operator to ""GreaterThanOrEqualToThreshold"". If the health check doesn't have enough info about the alarm, the status should be ""Healthy"". All resources should be provisioned in ""us-east-1""","Has one ""aws_cloudwatch_metric_alarm"""" resources
+    with ""alarm_name""
+    with ""comparison_operator"" set to ""GreaterThanOrEqualToThreshold""
+    with ""evaluation_periods""
+    with ""namespace"" set to ""AWS/EC2""
+    with ""period"" set to ""120""
+    with ""statistic"" set to ""Average""
+    with ""metric_name"" set to ""CPUUtilization""
+    with ""threshold""
+
+Has one ""aws_route53_health_check"" resources
+    with ""cloudwatch_alarm_name"" referencing the ""aws_cloudwatch_metric_alarm"" resource
+    with ""cloudwatch_alarm_region"" 
+    with ""insufficient_data_health_status"" set to ""Healthy""
+    with ""type"" equal to ""CLOUDWATCH"""
+195,197,3,aws_dynamodb_table,Create a DynamoDB with point-in-time recovery enabled.,"Has one ""aws_dynamodb_table"" resource
+with one ""point_in_time_recovery""
+with one ""enabled"" = true"
+216,218,3,aws_db_option_group,"defines an AWS RDS option group named ""option-group-pike"" with major engine version 11, and use the sqlserver-ee engine. It should have options for ""SQLSERVER_AUDIT"" and ""TDE"" ","Has one ""aws_db_option_group"" resource
+    with one ""engine_name"" = ""sqlserver-ee""
+    with one ""major_engine_version"" = ""11.00""
+    with options for ""SQLSERVER_AUDIT"" and ""TDE"""
+258,260,4,"aws_codebuild_project, aws_iam_role",create a AWS codebuild project resource with example iam role and secondary sources,"Has one ""aws_iam_role"" resource and one ""aws_codebuild_project"" resource with a ""secondary_sources"" block"
+266,268,4,"aws_iam_role, aws_kinesis_firehose_delivery_stream, aws_opensearchserverless_collection, aws_opensearchserverless_security_policy, aws_s3_bucket, aws_iam_policy_document",Generate a Kinesis Firehose Delivery Stream with a OpenSearch Serverless Destination,"Has one ""aws_iam_role"" resource, one ""aws_s3_bucket"" resource, one ""aws_opensearchserverless_security_policy"" resource, and one ""aws_kinesis_firehose_delivery_stream"" resource with an ""opensearchserverless_configuration"" block"
+267,269,4,"aws_iam_role, aws_kinesis_firehose_delivery_stream, aws_s3_bucket, aws_iam_policy_document","Generate a Kinesis Firehose Delivery Stream with a HTTP Endpoint (e.g., New Relic) Destination","Has one ""aws_iam_role"" resource, one ""aws_s3_bucket"" resource, and one ""aws_kinesis_firehose_delivery_stream"" resource with an ""http_endpoint_configuration"" block"
+285,287,4,"aws_redshift_cluster, aws_redshift_endpoint_access, aws_redshift_subnet_group, aws_subnet, aws_subnet, aws_vpc",Create a RedShift cluster with 2 nodes and create an endpoint access for it,Create a cluster and a endpoint associated with it
+291,293,4,"aws_iam_role, aws_sagemaker_domain, aws_sagemaker_user_profile, aws_subnet, aws_vpc, aws_iam_policy_document",Create a SageMaker user profile resource,Has a sagemaker user profile resource which depends on a sagemaker domain resource
+314,316,5,"aws_elastic_beanstalk_application, aws_elastic_beanstalk_application_version, aws_elastic_beanstalk_environment, aws_iam_instance_profile, aws_iam_role, aws_iam_role_policy_attachment, aws_s3_bucket, aws_s3_object","Create an elastic beanstalk environment with an elastic beanstalk application version. Name the iam_role ""eb_ec2_role"", the instance profile ""eb_ec2_profile"", the elastic beanstalk application ""myapp"", the bucket ""sampleapril26426"", the object ""examplebucket_object"", and the application version ""version"".","Has one ""aws_iam_role"" resource
+    with ""name""
+    with ""assume_role_policy"" and ""Service"" set to ""ec2.amazonaws.com""
+
+Has one ""aws_iam_role_policy_attachment"" resource
+    with ""role"" referencing the ""aws_iam_role""
+    with ""policy_arn"" set to ""arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier""
+
+Has one ""aws_iam_instance_profile"" resource
+    with ""name""
+    with ""role"" referencing the ""aws_iam_role"" resource
+
+Has one ""aws_elastic_beanstalk_application"" resource
+    with ""name""
+
+Has one ""aws_s3_bucket"" resource
+    with ""bucket""
+
+Has one ""aws_s3_object"" resource
+    with ""key""
+    with ""source""
+    with ""bucket"" referencing the ""aws_s3_bucket"" resource
+
+Has one ""aws_elastic_beanstalk_application_version"" resource
+    with ""name
+    with ""application"" referencing the ""aws_elastic_beanstalk_application"" resource
+    with ""bucket"" referencing the ""bucket"" from the ""aws_s3_object"" resource
+    with ""key"" referencing the ""key"" from the ""aws_s3_object"" resource
+
+Has one ""aws_elastic_beanstalk_environment"" resource
+    with ""name""
+    with ""application"" referencing the ""aws_elastic_beanstalk_application"" resource
+    with ""solution_stack_name""
+    with ""version_label"" referencing the ""aws_elastic_beanstalk_application_version"" resource
+    with one ""setting"" block which has a ""value"" that references the ""aws_iam_instance_profile"" resourc"
+336,338,5,"aws_db_instance, aws_instance, aws_instance, aws_security_group, aws_subnet, aws_subnet, aws_subnet, aws_vpc","Create VPC with three subnets: one public subnet and two private subnets. Create an EC2 instance in the public subnet running web servers, an EC2 instance in the private subnet running the application servers, and an RDS instance in the other private subnet serving as the database.",
+364,366,5,"aws_db_instance, aws_db_subnet_group, aws_subnet, aws_vpc","sets up a 5 GB PostgreSQL database instance in AWS, specifying details like engine version, instance size, storage, and associated networking resources within a custom VPC and subnet. The max allocated storage should be 50 GB, and the maintainance window should be 0:00 to 3:00 AM on monday.","Has one ""aws_db_instance"" resource
+    with one ""allocated_storage"" = 5
+    with one ""engine"" = ""postgres""
+    with one ""instance_class""
+    with one ""password""
+    with one ""username""
+    with one ""max_allocated_storage"" = 50
+    with one ""maintenance_window"" = ""Mon:00:00-Mon:03:00""
+
+has one aws_db_subnet_group resource
+has one aws_subnet
+has one aws_vpc"
+380,382,5,"aws_internet_gateway, aws_route_table, aws_route_table_association, aws_subnet, aws_vpc",create a VPC in AWS with multiple public subnets and associates them with a route table configured for internet access via an internet gateway.,"Has one ""aws_vpc"" resource
+with a specified ""cidr_block""
+
+Has one ""aws_subnet"" resources
+with ""vpc_id"" referencing the ""aws_vpc"" resource
+with specified ""cidr_block"" for each subnet
+in an indexed sequence with each subnet having a unique ""availability_zone""
+with a ""tags"" map including a ""Name"" key that uniquely identifies each subnet
+
+Has one ""aws_internet_gateway"" resource
+with ""vpc_id"" referencing the ""aws_vpc"" resource
+with a ""tags"" map including a ""Name"" key
+
+Has one ""aws_route_table"" resource
+with ""vpc_id"" referencing the ""aws_vpc"" resource
+containing a default route for internet access through the ""aws_internet_gateway""
+with a ""tags"" map including a ""Name"" key
+
+Has multiple ""aws_route_table_association"" resources
+linking each ""aws_subnet"" resource to the ""aws_route_table"" public
+with ""subnet_id"" and ""route_table_id"" set appropriately for each subnet"
+382,384,5,"aws_internet_gateway, aws_route_table, aws_route_table_association, aws_subnet, aws_vpc",create a VPC in AWS with multiple public subnets and associates them with a route table configured for internet access via an internet gateway.,"Has one ""aws_vpc"" resource
+with a specified ""cidr_block""
+with ""enable_dns_hostnames"" set to true
+with a ""tags"" map including a ""Name"" key
+
+Has one ""aws_subnet"" resources
+with ""vpc_id"" referencing the ""aws_vpc"" resource
+with specified ""cidr_block"" for each subnet
+in an indexed sequence with each subnet having a unique ""availability_zone""
+with a ""tags"" map including a ""Name"" key that uniquely identifies each subnet
+
+Has one ""aws_internet_gateway"" resource
+with ""vpc_id"" referencing the ""aws_vpc"" resource
+
+Has one ""aws_route_table"" resource
+with ""vpc_id"" referencing the ""aws_vpc"" resource
+containing a default route for internet access through the ""aws_internet_gateway""
+
+Has multiple ""aws_route_table_association"" resources
+linking each ""aws_subnet"" resource to the ""aws_route_table"" public
+with ""subnet_id"" and ""route_table_id"" set appropriately for each subnet"
+383,385,6,"aws_db_instance, aws_db_instance, aws_db_instance, aws_db_instance, aws_route53_record, aws_route53_record, aws_route53_record, aws_route53_zone","Using route 53 resources, configure a weighted routing policy that splits users between three db_instances that are replicas of a main db_instance. Provision the three replica instances in ""us-east-1"", ""eu-central-1"", and ""ap-southeast-1"". Provision the zone and main db_instance in ""us-west-1"". Call the zone ""main"", the original db_instance ""primary"", the three replicas ""replica_us_east"", ""replica_eu_central"" and ""replica_ap_southeast"" respectively, and the provider aliases ""main"", ""us-east"", ""eu-central"", and ""ap-southeast"".","Has one ""aws_route53_zone"" resource
+    with ""name""
+
+Has a ""aws_db_instance"" resource
+    with ""identifier"" set to ""master""
+    with ""instance_class""
+    with ""allocated_storage""
+    with ""engine""
+    with ""username""
+    with ""password""
+    with ""backup_retention_period"" set to a non-zero number
+
+Has multiple ""aws_db_instance"" resources
+    with ""identifier""
+    with ""replicate_source_db"" referencing the main ""aws_db_instance"" resource
+    with ""instance_class""
+
+Has multiple ""aws_route53_record"" resources
+    with ""name""
+    with ""type""
+    with ""ttl""
+    with ""zone_id"" referencing the ""aws_route53_zone"" resource
+    with ""weighted_routing_policy"" block that contains ""weight"" as a non-zero number
+    with ""records"" containing an endpoint of a corresponding replica of the main ""aws_db_instance"""
+403,405,6,"aws_iam_role, aws_iam_role_policy, aws_kendra_index",Generate a basic Kendra index resource with the default Document Metadata Configuration Updates,"Has one ""aws_iam_role"" resource and one ""aws_kendra_index"" resource with all default ""document_metadata_configuration_updates"" set"
+411,413,6,"aws_msk_cluster, aws_security_group, aws_subnet, aws_subnet, aws_subnet, aws_vpc, aws_availability_zones",Create a managed MSK cluster with 3 broker nodes in us-east1.,"Has one ""aws_msk_cluster"" resource
+with one ""number_of_broker_nodes"" = 3
+Requires aws provider with alias of ""aws"" with a region of us-east-1"
+418,420,6,"aws_cloudwatch_log_group, aws_iam_role, aws_kinesis_firehose_delivery_stream, aws_kms_key, aws_msk_cluster, aws_s3_bucket, aws_s3_bucket_acl, aws_s3_bucket_ownership_controls, aws_security_group, aws_subnet, aws_subnet, aws_subnet, aws_vpc, aws_availability_zones, aws_iam_policy_document","Create a MSK with 3 broker nodes outputting to a CloudWatch log group, an S3 bucket, a Kinesis Firehose delivery stream. The MSK should encryption at rest, open monitoring.","Has one ""aws_msk_cluster"" resource
+with one ""number_of_broker_nodes"" = 3
+with one ""logging_info""
+with one ""broker_logs""
+with one ""cloudwatch_logs""
+with one ""enabled"" = true
+with one ""s3""
+with one ""enabled"" = true
+with one ""firehose""
+with one ""enabled"" = true
+with one ""encryption_info""
+with one ""encryption_at_rest_kms_key_arn""
+with one ""open_monitoring""
+with one ""prometheus""
+with one ""jmx_exporter""
+with one ""enabled_in_broker"" = true
+with one ""node_exporter""
+with one ""enabled_in_broker"" = true
+Requires aws provider with alias of ""aws"" with a region of us-east-1"
+440,442,6,"aws_db_instance, aws_db_parameter_group, aws_db_subnet_group, aws_kms_key, aws_security_group, aws_subnet, aws_subnet","Provision a secure PostgreSQL database instance within a specified AWS VPC, leveraging AWS services like RDS, subnets, and KMS for encryption. It sets up a custom parameter group for PostgreSQL settings, and a security group to manage access. The database instance is configured with specifications like storage size, engine version, multi-AZ deployment for high availability, and encryption using a KMS key. The database instance is configured with instance class ""db.t3.micro"", and backup retention period 7.","Has one ""aws_db_instance"" resource
+with one ""allocated_storage""
+with one ""engine"" = ""postgres""
+with one ""instance_class"" = ""db.t3.micro""
+with one ""password""
+with one ""username""
+with one backup_retention_period = 7
+with one allow_major_version_upgrade = true
+
+Has one ""aws_security_group"" resource
+with rules to manage access to the PostgreSQL database instance
+
+Has one ""aws_db_subnet_group"" resource
+with ""subnet_ids"" including at least two subnets within the VPC
+
+Has one ""aws_db_parameter_group"" resource
+with customized parameters for PostgreSQL settings, such as ""password_encryption"" and ""rds.force_ssl""
+
+Has one ""aws_kms_key"" resource
+for encrypting the PostgreSQL database storage"

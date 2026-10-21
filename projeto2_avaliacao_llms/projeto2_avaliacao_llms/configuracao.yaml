@@ -1,0 +1,137 @@
+# =====================================================================
+# PROJETO 2: configuracao da geracao e avaliacao de Terraform com LLMs
+# =====================================================================
+# Linhas que comecam com "#" sao comentarios (explicacoes) e sao ignoradas.
+# Altere apenas o valor depois dos dois pontos.
+
+# ---------------------------------------------------------------------
+# 1. Dataset IaC-Eval
+# ---------------------------------------------------------------------
+dataset:
+  # Caminho do arquivo (.csv, .ods ou .xlsx) ou "huggingface" para baixar.
+  # O arquivo dados/iac_eval.csv ja vem pronto (458 cenarios).
+  origem: "dados/iac_eval.csv"
+  aba_planilha: "dataset"
+
+# ---------------------------------------------------------------------
+# 2. Exemplos fixos (resultado do Projeto 1)
+# ---------------------------------------------------------------------
+exemplos_fixos:
+  # Copie para ca o arquivo resultados/exemplos_fixos.json do Projeto 1.
+  arquivo: "entrada/exemplos_fixos.json"
+
+# ---------------------------------------------------------------------
+# 3. Quais cenarios avaliar
+# ---------------------------------------------------------------------
+cenarios:
+  # "aleatoria": sorteio com semente fixa (sempre o mesmo sorteio)  <- padrao
+  # "primeiros": os primeiros cenarios de cada dificuldade
+  # "todos":     os 455 cenarios (como no paper; demora muito)
+  estrategia: "aleatoria"
+  quantidade_por_dificuldade: 5
+  dificuldades: [1, 2, 3, 4, 5, 6]
+  semente: 42
+
+# ---------------------------------------------------------------------
+# 4. Settings
+# ---------------------------------------------------------------------
+# "A" = Prompt-only (principal, igual ao paper)
+# "B" = Prompt + Intent (complementar)
+# Para rodar so um deles, deixe apenas ["A"] ou ["B"].
+settings: ["A", "B"]
+
+# ---------------------------------------------------------------------
+# 5. Modelos (nomes EXATAMENTE como aparecem em `ollama list`)
+#    "parametros" e o texto da coluna #Params da tabela.
+#    Aqui usamos o SIZE do `ollama list`, como voce pediu.
+# ---------------------------------------------------------------------
+modelos:
+  - nome: "deepseek-coder-v2:16b"
+    parametros: "8.9 GB"
+  - nome: "deepseek-coder:latest"
+    parametros: "776 MB"
+  - nome: "mistral:latest"
+    parametros: "4.4 GB"
+  - nome: "qwen2.5-coder:32b"
+    parametros: "19 GB"
+  - nome: "qwen2.5-coder:7b"
+    parametros: "4.7 GB"
+  - nome: "llama3.2:latest"
+    parametros: "2.0 GB"
+  - nome: "qwen2.5:0.5b"
+    parametros: "397 MB"
+  - nome: "qwen2.5:latest"
+    parametros: "4.7 GB"
+
+# ---------------------------------------------------------------------
+# 6. Ollama
+# ---------------------------------------------------------------------
+ollama:
+  url: "http://127.0.0.1:11434"
+  # Tempo maximo de espera por UMA resposta (modelos grandes sao lentos).
+  tempo_limite_segundos: 1800
+  # Quanto tempo o modelo fica carregado na memoria entre pedidos.
+  keep_alive: "30m"
+  tentativas_em_caso_de_erro: 3
+  opcoes:
+    temperature: 0      # protocolo pass@1 dos slides: sem aleatoriedade
+    top_p: 0.9
+    top_k: 40
+    seed: 42
+    num_predict: 4096   # tamanho maximo da resposta (tokens)
+    num_ctx: 8192       # tamanho maximo da entrada (tokens). NAO diminua: o prompt tem 3 exemplos.
+
+# ---------------------------------------------------------------------
+# 7. Extracao do HCL
+# ---------------------------------------------------------------------
+extracao:
+  # false (padrao, igual ao protocolo): sem as tags <final_terraform_config>, nao ha HCL.
+  # true: se nao houver tags, aceita o ultimo bloco ```hcl ...``` da resposta.
+  usar_bloco_de_codigo_sem_tags: false
+
+pasta_resultados: "resultados"
+
+# ---------------------------------------------------------------------
+# 8. Verificadores (use os MESMOS valores do Projeto 1)
+# ---------------------------------------------------------------------
+verificadores:
+  programas:
+    terraform: "terraform"
+    opa: "opa"
+    tflint: "tflint"
+    checkov: "checkov"
+
+  tempos_limite_segundos:
+    terraform_init: 900 # Antes estava 300, mas eu mudei para 900
+    terraform_validate: 60
+    terraform_plan: 120
+    terraform_show: 60
+    opa_eval: 60
+    tflint: 200 # Antes estava 120, mas eu mudei para 200
+    checkov: 10000 # Antes estava 300, mas eu mudei para 10000
+
+  deployability:
+    # "moto"         -> credenciais falsas + simulador local gratuito da AWS (recomendado)
+    # "sem_servidor" -> apenas credenciais falsas (blocos data "aws_..." vao falhar)
+    modo: "moto"
+    regiao_padrao: "us-east-1"
+    endereco_moto: "http://127.0.0.1:5555"
+    iniciar_moto_automaticamente: true
+    comando_moto: "moto_server"
+    max_tentativas_aws: 1
+    versao_provider_aws: "~> 5.0"
+
+  # 205 dos 458 Reference outputs tem required_version = "~> 1.9.8" (so aceita Terraform 1.9.x)
+  # e profile = "admin-1" (perfil AWS do computador dos autores do IaC-Eval).
+  # true: troca a exigencia por ">= 1.0.0" e anula o profile (via arquivo override).
+  # false (padrao): mantem o codigo como esta; esses codigos falham (o template proibe profile
+  #                 e pede compatibilidade com Terraform 1.12.0).
+  neutralizar_required_version_e_profile: false
+
+  opa:
+    exigir_pelo_menos_um_true: true
+
+  tflint:
+    gravidades_que_reprovam: ["error"]
+
+  pasta_cache: "ferramentas/cache"

@@ -1,0 +1,279 @@
+{
+  "informacoes_da_execucao": {
+    "data_hora": "2026-10-20T14:43:28",
+    "origem_do_dataset": "dados/iac_eval.csv",
+    "total_de_cenarios_no_dataset": 458,
+    "estrategia": "uma_por_dificuldade",
+    "dificuldades_desejadas": [
+      1,
+      2,
+      3
+    ],
+    "criterios": {
+      "compilability": true,
+      "deployability": true,
+      "correctness": true,
+      "linter": true,
+      "security_minima": 1.0
+    },
+    "versao_terraform": "1.12.0",
+    "modo_deployability": "moto",
+    "tflint_gravidades_que_reprovam": [
+      "error"
+    ]
+  },
+  "exemplos": [
+    {
+      "numero_do_exemplo": 1,
+      "linha": 24,
+      "linha_na_planilha": 26,
+      "Resource": "aws_lightsail_instance",
+      "Difficulty": 1,
+      "Prompt": "generate Basic Amazon Lightsail",
+      "Intent": "have one \"aws_lightsail_instance\" resource\n    with \"name\" argument\n    with \"availability_zone\" argument\n    with \"blueprint_id\" argument\n    with \"bundle_id\" argument",
+      "Rego intent": "package terraform.validation\n\ndefault is_valid_lightsail_instance = false\n\nis_valid_lightsail_instance {\n    resource := input.planned_values.root_module.resources[_]\n    resource.type == \"aws_lightsail_instance\"\n    has_required_arguments(resource.values)\n}\n\nhas_required_arguments(values) {\n    values.name\n    values.availability_zone\n    values.blueprint_id\n    values.bundle_id\n}",
+      "Reference output": "provider \"aws\" {\n  region     = \"us-east-1\"\n}\n\nresource \"aws_lightsail_instance\" \"custom\" {\n  name              = \"custom\"\n  availability_zone = \"us-east-1a\"\n  blueprint_id      = \"amazon_linux_2\"\n  bundle_id         = \"nano_2_0\"\n}",
+      "verificacao": {
+        "metricas": {
+          "compilability": 1.0,
+          "deployability": 1.0,
+          "correctness": 1.0,
+          "linter_pass": 1.0,
+          "security_compliance": 1.0
+        },
+        "verificacoes": {
+          "terraform validate": {
+            "comando": "terraform validate",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "terraform init e terraform validate terminaram sem erro",
+            "detalhes": {
+              "codigo_saida": 0
+            }
+          },
+          "terraform plan": {
+            "comando": "terraform plan",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "terraform plan gerou um plano de execucao valido (nada foi criado)",
+            "detalhes": {
+              "codigo_saida": 0,
+              "plan_json_gerado": true
+            }
+          },
+          "opa eval": {
+            "comando": "opa eval",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "todas as regras da Rego intent deram true: data.terraform.validation.is_valid_lightsail_instance",
+            "detalhes": {
+              "regras_true": [
+                "data.terraform.validation.is_valid_lightsail_instance"
+              ],
+              "regras_false": []
+            }
+          },
+          "tflint": {
+            "comando": "tflint",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "TFLint nao reportou problema com gravidade error (2 aviso(s) de gravidade menor ignorado(s): terraform_required_providers, terraform_required_version)",
+            "detalhes": {
+              "quantidade_problemas_que_reprovam": 0,
+              "quantidade_problemas_ignorados": 2,
+              "gravidades_que_reprovam": [
+                "error"
+              ],
+              "regras_que_reprovaram": [],
+              "regras_ignoradas": [
+                "terraform_required_providers",
+                "terraform_required_version"
+              ]
+            }
+          },
+          "checkov": {
+            "comando": "checkov",
+            "status": "PASS",
+            "valor": 1.0,
+            "motivo": "todas as 1 regras de seguranca aprovadas (nota 1.0000)",
+            "detalhes": {
+              "passed": 1,
+              "failed": 0,
+              "erros_de_leitura_do_codigo": 0
+            }
+          }
+        }
+      },
+      "data_da_selecao": "2026-10-20T14:30:22"
+    },
+    {
+      "numero_do_exemplo": 2,
+      "linha": 49,
+      "linha_na_planilha": 51,
+      "Resource": "aws_elastic_beanstalk_application, aws_elastic_beanstalk_configuration_template",
+      "Difficulty": 2,
+      "Prompt": "Create a template of an elastic beanstalk application",
+      "Intent": "Has one \"aws_elastic_beanstalk_application\" resource\n    with \"name\"\n\nHas one \"aws_elastic_beanstalk_configuration_template\" resource\n    with \"name\"\n    with \"application\" referencing the \"aws_elastic_beanstalk_application\" resource\n    with \"solution_stack_name\" ",
+      "Rego intent": "package terraform.validation\n\ndefault is_configuration_valid = false\n\ndefault is_valid_eb_app = false\n\ndefault is_valid_eb_app_template = false\n\n\nis_valid_eb_app {\n        some i\n    resource := input.configuration.root_module.resources[i]\n    resource.type == \"aws_elastic_beanstalk_application\"\n    resource.expressions.name\n}\n\n\n\nis_valid_eb_app_template {\n        some i\n    resource := input.configuration.root_module.resources[i]\n    resource.type == \"aws_elastic_beanstalk_configuration_template\"\n    resource.expressions.name\n    resource.expressions.solution_stack_name\n    startswith(resource.expressions.application.references[0], \"aws_elastic_beanstalk_application\")\n}\n\n\nis_configuration_valid {\n    is_valid_eb_app\n    is_valid_eb_app_template\n}",
+      "Reference output": "provider \"aws\" {\n  region = \"us-east-1\"\n}\n\nresource \"aws_elastic_beanstalk_application\" \"tftest\" {\n  name        = \"tf-test-name\"\n  description = \"tf-test-desc\"\n}\n\nresource \"aws_elastic_beanstalk_configuration_template\" \"tf_template\" {\n  name                = \"tf-test-template-config\"\n  application         = aws_elastic_beanstalk_application.tftest.name\n  solution_stack_name = \"64bit Amazon Linux 2023 v4.0.9 running Python 3.11\"\n}",
+      "verificacao": {
+        "metricas": {
+          "compilability": 1.0,
+          "deployability": 1.0,
+          "correctness": 1.0,
+          "linter_pass": 1.0,
+          "security_compliance": 1.0
+        },
+        "verificacoes": {
+          "terraform validate": {
+            "comando": "terraform validate",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "terraform init e terraform validate terminaram sem erro",
+            "detalhes": {
+              "codigo_saida": 0
+            }
+          },
+          "terraform plan": {
+            "comando": "terraform plan",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "terraform plan gerou um plano de execucao valido (nada foi criado)",
+            "detalhes": {
+              "codigo_saida": 0,
+              "plan_json_gerado": true
+            }
+          },
+          "opa eval": {
+            "comando": "opa eval",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "todas as regras da Rego intent deram true: data.terraform.validation.is_configuration_valid, data.terraform.validation.is_valid_eb_app, data.terraform.validation.is_valid_eb_app_template",
+            "detalhes": {
+              "regras_true": [
+                "data.terraform.validation.is_configuration_valid",
+                "data.terraform.validation.is_valid_eb_app",
+                "data.terraform.validation.is_valid_eb_app_template"
+              ],
+              "regras_false": []
+            }
+          },
+          "tflint": {
+            "comando": "tflint",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "TFLint nao reportou problema com gravidade error (2 aviso(s) de gravidade menor ignorado(s): terraform_required_providers, terraform_required_version)",
+            "detalhes": {
+              "quantidade_problemas_que_reprovam": 0,
+              "quantidade_problemas_ignorados": 2,
+              "gravidades_que_reprovam": [
+                "error"
+              ],
+              "regras_que_reprovaram": [],
+              "regras_ignoradas": [
+                "terraform_required_providers",
+                "terraform_required_version"
+              ]
+            }
+          },
+          "checkov": {
+            "comando": "checkov",
+            "status": "PASS",
+            "valor": 1.0,
+            "motivo": "todas as 1 regras de seguranca aprovadas (nota 1.0000)",
+            "detalhes": {
+              "passed": 1,
+              "failed": 0,
+              "erros_de_leitura_do_codigo": 0
+            }
+          }
+        }
+      },
+      "data_da_selecao": "2026-10-20T14:36:46"
+    },
+    {
+      "numero_do_exemplo": 3,
+      "linha": 146,
+      "linha_na_planilha": 148,
+      "Resource": "aws_iam_role, aws_kinesisanalyticsv2_application, aws_iam_policy_document",
+      "Difficulty": 3,
+      "Prompt": "Generate a basic Amazon Kinesis V2 Analytics Application to manage an Apache Flink Application",
+      "Intent": "Has one \"aws_iam_role\" resource, and one \"aws_kinesisanalyticsv2_application\" with argument runtime_environment != \"SQL-1_0\"",
+      "Rego intent": "package terraform.validation\n\nimport future.keywords.in\n\ndefault has_valid_resources = false\n\nhas_valid_iam_role(resources) { \n        some resource in resources \n    resource.type == \"aws_iam_role\" \n    contains(resource.change.after.assume_role_policy,\"kinesisanalytics.amazonaws.com\") \n}\n\n\nhas_valid_kinesisanalyticsv2_application {\n        some i\n        resource := input.planned_values.root_module.resources[i]\n    resource.type == \"aws_kinesisanalyticsv2_application\"\n    resource.values.name\n    resource.values.runtime_environment != \"SQL-1_0\"\n           role := input.configuration.root_module.resources[i]\n    role.expressions.service_execution_role\n}\n\nhas_valid_resources {\n        has_valid_iam_role(input.resource_changes)\n    has_valid_kinesisanalyticsv2_application\n}",
+      "Reference output": "provider \"aws\" {\n  region = \"us-west-2\"\n}\n\ndata \"aws_iam_policy_document\" \"KinesisAssume\" {\n  statement {\n    effect  = \"Allow\"\n    actions = [\"sts:AssumeRole\"]\n    principals {\n      type        = \"Service\"\n      identifiers = [\"kinesisanalytics.amazonaws.com\"]\n    }\n  }\n}\n\n\nresource \"aws_iam_role\" \"kinesis_role\" {\n  name               = \"kinesis_role\"\n  assume_role_policy = data.aws_iam_policy_document.KinesisAssume.json\n}\n\nresource \"aws_kinesisanalyticsv2_application\" \"flink_app\" {\n  name                 = \"example-application1\"\n  runtime_environment  = \"FLINK-1_13\"\n  service_execution_role = aws_iam_role.kinesis_role.arn\n}",
+      "verificacao": {
+        "metricas": {
+          "compilability": 1.0,
+          "deployability": 1.0,
+          "correctness": 1.0,
+          "linter_pass": 1.0,
+          "security_compliance": 1.0
+        },
+        "verificacoes": {
+          "terraform validate": {
+            "comando": "terraform validate",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "terraform init e terraform validate terminaram sem erro",
+            "detalhes": {
+              "codigo_saida": 0
+            }
+          },
+          "terraform plan": {
+            "comando": "terraform plan",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "terraform plan gerou um plano de execucao valido (nada foi criado)",
+            "detalhes": {
+              "codigo_saida": 0,
+              "plan_json_gerado": true
+            }
+          },
+          "opa eval": {
+            "comando": "opa eval",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "todas as regras da Rego intent deram true: data.terraform.validation.has_valid_kinesisanalyticsv2_application, data.terraform.validation.has_valid_resources",
+            "detalhes": {
+              "regras_true": [
+                "data.terraform.validation.has_valid_kinesisanalyticsv2_application",
+                "data.terraform.validation.has_valid_resources"
+              ],
+              "regras_false": []
+            }
+          },
+          "tflint": {
+            "comando": "tflint",
+            "status": "PASS",
+            "valor": 1,
+            "motivo": "TFLint nao reportou problema com gravidade error (2 aviso(s) de gravidade menor ignorado(s): terraform_required_providers, terraform_required_version)",
+            "detalhes": {
+              "quantidade_problemas_que_reprovam": 0,
+              "quantidade_problemas_ignorados": 2,
+              "gravidades_que_reprovam": [
+                "error"
+              ],
+              "regras_que_reprovaram": [],
+              "regras_ignoradas": [
+                "terraform_required_providers",
+                "terraform_required_version"
+              ]
+            }
+          },
+          "checkov": {
+            "comando": "checkov",
+            "status": "PASS",
+            "valor": 1.0,
+            "motivo": "todas as 17 regras de seguranca aprovadas (nota 1.0000)",
+            "detalhes": {
+              "passed": 17,
+              "failed": 0,
+              "erros_de_leitura_do_codigo": 0
+            }
+          }
+        }
+      },
+      "data_da_selecao": "2026-10-20T14:43:27"
+    }
+  ]
+}
